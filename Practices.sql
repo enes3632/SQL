@@ -168,6 +168,30 @@ from patients;
 
 -----------------------------------------------------------------------
 --Q11
+/*
+Question Selection
+hardcompleted
+Show the employee's first_name and last_name, a "Num_Orders" column with 
+a count of the orders taken, and a column called "Shipped" that displays 
+"On Time" if the order shipped on time and "Late" if the order shipped late. 
+Group records by employee first_name and last_name and then by the "Shipped" 
+status. Order by employee lastname, then by firstname, and then descending 
+by number of orders.*/
+
+select first_name, last_name, count(order_id) as 'num_orders', 
+	case
+    	when required_date>shipped_date then 'On Time'
+        when required_date<=shipped_date or shipped_date is null then 'Late'
+    end as 'Shipped'
+from orders
+left join employees
+on employees.employee_id=orders.employee_id
+group by orders.employee_id, shipped
+having required_date is not null
+order by last_name, first_name, num_orders desc
+
+-----------------------------------------------------------------------
+--Q12
 /*display the number of duplicate patients based on their first_name and last_name.*/
 
 select patients.first_name, patients.last_name,count(patient_id)
@@ -176,7 +200,7 @@ group by first_name, last_name
 having count(patient_id)>1;
 
 -----------------------------------------------------------------------
---Q12
+--Q13
 /*For every admission, display the patient's full name, their admission 
 diagnosis, and their doctor's full name who diagnosed their problem*/
 
@@ -190,7 +214,7 @@ left join patients, doctors
 on admissions.patient_id=patients.patient_id and admissions.attending_doctor_id=doctors.doctor_id;
 
 -----------------------------------------------------------------------
---Q13
+--Q14
 /*Display the total amount of patients for each province. Order by descending.*/
 
 select province_name, count(patient_id)
@@ -201,7 +225,7 @@ group by patients.province_id
 order by count(patient_id) desc;
 
 -----------------------------------------------------------------------
---Q14
+--Q15
 /*For each doctor, display their id, full name, and the first and last 
 admission date they attended.*/
 
@@ -216,7 +240,7 @@ on doctors.doctor_id=admissions.attending_doctor_id
 group by attending_doctor_id;
 
 -----------------------------------------------------------------------
---Q15
+--Q16
 /*Show first_name, last_name, and the total number of admissions attended for each doctor.
 Every admission has been attended by a doctor.*/
 
@@ -227,7 +251,7 @@ on doctors.doctor_id=admissions.attending_doctor_id
 group by attending_doctor_id;
 
 -----------------------------------------------------------------------
---Q16
+--Q17
 /*Show patient_id, attending_doctor_id, and diagnosis for admissions that match
 one of the two criteria:
 1. patient_id is an odd number and attending_doctor_id is either 1, 5, or 19.
@@ -239,7 +263,7 @@ where ( patient_id % 2 = 1 and attending_doctor_id in (1,5,19))
     or (attending_doctor_id like '%2%' and len(patient_id)=3);
 
 -----------------------------------------------------------------------
---Q17
+--Q18
 /*Show all columns for patient_id 542's most recent admission_date.*/
 
 select *
@@ -249,7 +273,7 @@ order by admission_date desc
 limit 1;
 
 -----------------------------------------------------------------------
---Q18
+--Q19
 /*Show all of the days of the month (1-31) and how many admission_dates 
 occurred on that day. Sort by the day with most admissions to least admissions.*/
 
@@ -259,7 +283,7 @@ group by day(admission_date)
 order by count(patient_id) desc;
 
 -----------------------------------------------------------------------
---Q19
+--Q20
 /*Show the difference between the largest weight and smallest weight for patients
  with the last name 'Maroni'*/
 
@@ -268,7 +292,7 @@ from patients
 where last_name='Maroni';
 
 -----------------------------------------------------------------------
---Q20
+--Q21
 /*Show the province_id(s), sum of height; where the total sum of its 
 patient's height is greater than or equal to 7,000.*/
 
@@ -278,7 +302,7 @@ group by province_id
 having sum(height)>=7000;
 
 -----------------------------------------------------------------------
---Q21
+--Q22
 /*We want to display each patient's full name in a single column. Their 
 last_name in all upper letters must appear first, then first_name in all
 lower case letters. Separate the last_name and first_name with a comma. Order
@@ -290,7 +314,7 @@ from patients
 order by first_name desc;
 
 -----------------------------------------------------------------------
---Q22
+--Q23
 /*Show all patient's first_name, last_name, and birth_date who were born
 in the 1970s decade. Sort the list starting from the earliest birth_date.*/
 
@@ -300,7 +324,7 @@ where year(birth_date) between 1970 and 1979
 order by birth_date;
 
 -----------------------------------------------------------------------
---Q23
+--Q24
 /*Show all allergies ordered by popularity. Remove NULL values from query.*/
 
 select allergies, count(patient_id)
@@ -310,7 +334,7 @@ having allergies is not null
 order by count(patient_id) desc;
 
 -----------------------------------------------------------------------
---Q24
+--Q25
 /*Show first name, last name and role of every person that is either patient or doctor.
 The roles are either "Patient" or "Doctor"*/
 
@@ -332,7 +356,7 @@ full outer join doctors
 on specialty=allergies ;
 
 -----------------------------------------------------------------------
---Q25
+--Q26
 /*Show patient_id, diagnosis from admissions. Find patients admitted 
 multiple times for the same diagnosis.*/
 
@@ -342,7 +366,7 @@ group by patient_id, diagnosis
 having count(diagnosis)>1;
 
 -----------------------------------------------------------------------
---Q26
+--Q27
 /*Show first and last name, allergies from patients which have allergies 
 to either 'Penicillin' or 'Morphine'. Show results ordered ascending by 
 allergies then by first_name then by last_name.*/
@@ -353,7 +377,7 @@ where allergies in ('Penicillin','Morphine')
 order by allergies, first_name, last_name;
 
 -----------------------------------------------------------------------
---Q27
+--Q28
 
 /*Show the total amount of male patients and the total amount of female 
 patients in the patients table.
@@ -367,7 +391,7 @@ from patients
 where gender='M';
 
 -----------------------------------------------------------------------
---Q28
+--Q29
 /*Display every patient's first_name.
 Order the list by the length of each name and then by alphbetically*/
 
@@ -376,7 +400,7 @@ from patients
 order by len(first_name), first_name;
 
 -----------------------------------------------------------------------
---Q29
+--Q30
 /*Show patient_id, first_name, last_name from patients whos diagnosis is 'Dementia'.
 Primary diagnosis is stored in the admissions table.*/
 
@@ -387,7 +411,7 @@ on admissions.patient_id=patients.patient_id
 where diagnosis='Dementia';
 
 -----------------------------------------------------------------------
---Q30
+--Q31
 /*Show patient_id and first_name from patients where their first_name 
 start and ends with 's' and is at least 6 characters long.*/
 
@@ -396,7 +420,7 @@ from patients
 where first_name like 's__%__s';
 
 -----------------------------------------------------------------------
---Q31
+--Q32
 /*Show unique first names from the patients table which only occurs once in the list.
 For example, if two or more people are named 'John' in the first_name column then 
 don't include their name in the output list. If only 1 person is named 'Leo' then 
@@ -409,7 +433,7 @@ group by a.first_name
 having count(a.first_name)=1;
 
 -----------------------------------------------------------------------
---Q32
+--Q33
 /*Show unique birth years from patients and order them by ascending.*/
 
 select distinct(year(birth_date))
