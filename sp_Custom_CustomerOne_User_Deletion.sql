@@ -109,27 +109,10 @@ BEGIN
       ON cwaat.TransitionID = ctp.TransitionID
     LEFT JOIN [ConditionWorkflowActions] cwa
       ON cwaat.ConditionActionID = cwa.ConditionActionID
-    LEFT JOIN ResultSetConditions rsc
-      ON rsc.ConditionID = cwa.ConditionID
-    LEFT JOIN ResultSets rs
-      ON rs.ResultSetID = rsc.ResultSetID
-    LEFT JOIN BusinessProcesses bp
-      ON bp.ProcessID = rs.ProcessID
-    LEFT JOIN WorkflowActions wa
-      ON wa.[WorkflowActionID] = cwa.[WorkflowActionID]
-    LEFT JOIN [ConditionWorkflowStates] cwss
-      ON cwss.ConditionStateID = cwa.StartConditionStateID
-    LEFT JOIN WorkflowStates wss
-      ON wss.[WorkflowStateID] = cwss.[WorkflowStateID]
-    LEFT JOIN [ConditionWorkflowStates] cwse
-      ON cwse.ConditionStateID = cwa.EndConditionStateID
-    LEFT JOIN WorkflowStates wse
-      ON wse.[WorkflowStateID] = cwse.[WorkflowStateID]
     WHERE ctp.PrincipalID = @mainUserID
     and (not exists (select 1 from #workflowlist)
         OR not exists(select 1 from #workflowlist wfl where wfl.ConditionID=cwa.ConditionID)) 
-    ORDER BY rs.DisplayName,
-      rsc.ConditionName;
+    ;
 
     set @count = (select count(*) from #autoess)
     if @count > 0
@@ -150,27 +133,10 @@ BEGIN
     FROM [ConditionWorkflowActionPrincipals] cwap
     LEFT JOIN [ConditionWorkflowActions] cwa
       ON cwa.[ConditionActionID] = cwap.[ConditionActionID]
-    LEFT JOIN ResultSetConditions rsc
-      ON rsc.ConditionID = cwa.ConditionID
-    LEFT JOIN ResultSets rs
-      ON rs.ResultSetID = rsc.ResultSetID
-    LEFT JOIN BusinessProcesses bp
-      ON bp.ProcessID = rs.ProcessID
-    LEFT JOIN WorkflowActions wa
-      ON wa.[WorkflowActionID] = cwa.[WorkflowActionID]
-    LEFT JOIN [ConditionWorkflowStates] cwss
-      ON cwss.ConditionStateID = cwa.StartConditionStateID
-    LEFT JOIN WorkflowStates wss
-      ON wss.[WorkflowStateID] = cwss.[WorkflowStateID]
-    LEFT JOIN [ConditionWorkflowStates] cwse
-      ON cwse.ConditionStateID = cwa.EndConditionStateID
-    LEFT JOIN WorkflowStates wse
-      ON wse.[WorkflowStateID] = cwse.[WorkflowStateID]
     WHERE cwap.PrincipalID = @mainUserID
     and (not exists (select 1 from #workflowlist)
         OR not exists(select 1 from #workflowlist wfl where wfl.ConditionID=cwa.ConditionID)) 
-    ORDER BY rs.DisplayName,
-      rsc.ConditionName;
+    ;
 
     set @count = (select count(*) from #actss)
     if @count > 0
@@ -196,16 +162,11 @@ BEGIN
       ON rsc.ConditionID = cws.ConditionID
     LEFT JOIN ResultSets rs
       ON rs.ResultSetID = rsc.ResultSetID
-    LEFT JOIN BusinessProcesses bp
-      ON bp.ProcessID = rs.ProcessID
-    LEFT JOIN WorkflowStates ws
-      ON ws.[WorkflowStateID] = cws.[WorkflowStateID]
     WHERE RS.IsDeleted = 0
       AND PrincipalID = @mainUserID 
     and (not exists (select 1 from #workflowlist)
         OR not exists(select 1 from #workflowlist wfl where wfl.ConditionID=cws.ConditionID)) 
-    ORDER BY rs.DisplayName,
-      rsc.ConditionName;
+    ;
 
     set @count = (select count(*) from #statess)
     if @count > 0
