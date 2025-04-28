@@ -15,7 +15,7 @@ declare @Script nvarchar(max),
 		@code varchar(50),
 		@Execute bit
 
-set @ResultSetFilter = '%ap00[1234]%' --Can be a like statement
+set @ResultSetFilter = '%er00[1234]%' --Can be a like statement
 set @Execute = 0 --Set 1 to execute changes for all
 
 drop table if exists #Overview, #RSIDs, #Script

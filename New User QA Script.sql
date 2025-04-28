@@ -922,32 +922,32 @@ WHERE CWAI.IsRequired = 0
 	AND CWA.IsDeleted = 0
 	AND RS.IsDeleted = 0
 
---Futuro Emails Check
-drop table if exists #FuturoEmailsCheck, #FuturoEmails
-create table #FuturoEmails (
+--Fut Emails Check
+drop table if exists #FutEmailsCheck, #FutEmails
+create table #FutEmails (
 		Alessa_Resultset_Code nvarchar(500)
 		,Result_Object nvarchar(500)
 		,Recipient_Email_Address nvarchar(max)
 		,Is_Active int
 	)
 
-declare @DB nvarchar(100) = (select [name] from sys.databases where [name] = replace(db_name(),'_alessa',''))
+declare @DB nvarchar(100) = (select [name] from sys.databases where [name] = replace(db_name(),'_al',''))
 		,@SQL nvarchar(max)
 		,@OldUserEmail nvarchar(1000) = (select EmailAddress from users where UserID = @OLDuserID)
 		,@NewUserEmail nvarchar(1000) = (select EmailAddress from users where UserID = @NEWuserID)
 
 set @SQL = '
 	use ' + @DB + '
-	insert into #FuturoEmails
+	insert into #FutEmails
 	select Alessa_Resultset_Code
 		,Result_Object
 		,Recipient_Email_Address
 		,Is_Active
-	from CCMAnalytics.Config_Email
+	from Analytics.Config_Email
 	'
 exec sp_executesql @SQL
 
-select	'[FuturoEmailCheck]' [FuturoEmailCheck]
+select	'[FutEmailCheck]' [FutEmailCheck]
 		,bp.ProcessName
 		,f.Alessa_Resultset_Code
 		,rs.Code
@@ -967,11 +967,11 @@ select	'[FuturoEmailCheck]' [FuturoEmailCheck]
 		,case
 			when Recipient_Email_Address like '%'+@OldUserEmail+'%'
 				and Recipient_Email_Address not like '%'+@NewUserEmail+'%'
-				then 'The new user is missing in this Futuro email'
+				then 'The new user is missing in this Fut email'
 			else 'Pass'
 		end [Results]
-into #FuturoEmailsCheck
-from #FuturoEmails f 
+into #FutEmailsCheck
+from #FutEmails f 
 left join ResultSets rs on rs.Code = f.Alessa_Resultset_Code
 left join BusinessProcesses bp on bp.ProcessID = rs.ProcessID
 where rs.IsDeleted = 0 
@@ -983,7 +983,7 @@ where rs.IsDeleted = 0
 declare @Check nvarchar(100)
 	,@Check2 nvarchar(100)
 	,@Check3 nvarchar(100)
-	,@Checks nvarchar(1000) = '#RoleCheck,#EmailCheck,#LicenseCheck,#PermissionsCheck,#NotificationCheck,#ModuleBPACheck,#StateCheck,#ActionCheck,#AutoActionCheck,#DashboardCheck,#InitialAssigneeCheck,#EscalatedUserCheck,#OpenAssignedWorkItemsCheck,#InformationalUsersCheck,#UserAccessCheck,#IndicatorCheck,#FuturoEmailsCheck'
+	,@Checks nvarchar(1000) = '#RoleCheck,#EmailCheck,#LicenseCheck,#PermissionsCheck,#NotificationCheck,#ModuleBPACheck,#StateCheck,#ActionCheck,#AutoActionCheck,#DashboardCheck,#InitialAssigneeCheck,#EscalatedUserCheck,#OpenAssignedWorkItemsCheck,#InformationalUsersCheck,#UserAccessCheck,#IndicatorCheck,#FutEmailsCheck'
 	,@Query nvarchar(1000)
 
 while (select top (1) value from string_split(@Checks,',')) != '' 
@@ -1007,9 +1007,9 @@ begin
 	update #QAResults set Results = 'Pass' where [Check] = 'InitialAssignee Check' 
 end
 
-if exists(select * from #FuturoEmails where Recipient_Email_Address like '%'+@OldUserEmail+'%' or Recipient_Email_Address like '%'+@NewUserEmail+'%' ) and @NEWuserID is not null
+if exists(select * from #FutEmails where Recipient_Email_Address like '%'+@OldUserEmail+'%' or Recipient_Email_Address like '%'+@NewUserEmail+'%' ) and @NEWuserID is not null
 begin 
-	update #QAResults set Query = 'Select * from #FuturoEmailsCheck where Recipient_Email_Address like ''%'+@OldUserEmail+'%'' or Recipient_Email_Address like ''%'+@NewUserEmail+'%'' ' where [Check] = 'FuturoEmails Check' 
+	update #QAResults set Query = 'Select * from #FutEmailsCheck where Recipient_Email_Address like ''%'+@OldUserEmail+'%'' or Recipient_Email_Address like ''%'+@NewUserEmail+'%'' ' where [Check] = 'FutEmails Check' 
 end
 
 if (select count(*) from #UserAccessCheck 
@@ -1041,7 +1041,7 @@ select
 			then [Query] + ' order by ProcessName,Code,Workflow,Action,StartState,EndState'
 		when [Query] like '%#AutoActionCheck%'
 			then [Query] + ' order by ProcessName,Code,Workflow,WorkflowAction,StartState,EndState'
-		when [Query] like '%#FuturoEmails%'
+		when [Query] like '%#FutEmails%'
 			then [Query] + ' order by ProcessName,Code'
 		else [Query]
 	end [Query]
